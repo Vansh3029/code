@@ -9,8 +9,6 @@ int inside = 0;
 
 void acquire_lock(){
     while(lock == 1)
-        usleep(1000);
-    usleep(10000);
     lock = 1;
 }
 
@@ -28,7 +26,6 @@ void *process(void *arg){
         printf("Error: More than one thread in critical section!\n");
     }
     int temp = shared_data;
-    sleep(1);
     shared_data = temp + 1;
     printf("Thread %d EXITED critical section\n", id);
     inside--;

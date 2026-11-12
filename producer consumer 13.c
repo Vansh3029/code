@@ -27,11 +27,11 @@ void *producer(void *arg)
         int index = in;
         buffer[in] = item;
         in = (in + 1) % N;
-
+        printf("%d producer produce %d at %d\n", i, item, index);
         sem_post(&full);
         sem_post(&mutex);
 
-        printf("%d producer produce %d at %d\n", i, item, index);
+        
     }
 
     return NULL;
@@ -47,11 +47,11 @@ void *consumer(void *arg)
         int index = out;
         int item = buffer[out];
         out = (out + 1) % N;
-
+        printf("%d consumer consume %d from %d\n", i, item, index);
         sem_post(&empty);
         sem_post(&mutex);
 
-        printf("%d consumer consume %d from %d\n", i, item, index);
+        
     }
 
     return NULL;
