@@ -1,9 +1,10 @@
+
 #include <stdio.h>
 
 int main()
 {
-    int block[5] = {100,500,200,300,600};
-    int process[5] = {212,417,112,426,150};
+    int block[5] = {100, 500, 200, 300, 600};
+    int process[5] = {212, 417, 112, 426, 150};
     int used[5] = {0};
     int total = 0;
 
