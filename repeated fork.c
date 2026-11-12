@@ -4,34 +4,19 @@
 
 int main() {
     pid_t root = getpid();
-    pid_t child[3];
-    int count = 0;
+    int count = 1;
 
-    for(int i = 0; i < 3; i++) {
-        pid_t n = fork();
-
-        if(n == 0) {
-            continue;
-        }
-        else if(n > 0) {
-            child[count++] = n;
-        }
-        else {
-            printf("Fork failed\n");
-            return 1;
-        }
+    for (int i = 0; i < 3; i++) {
+        fork();
+        count *= 2;
     }
 
-    printf("Process ID: %d, Parent ID: %d\n", getpid(), getppid());
-    fflush(stdout);
+    printf("PID: %d, PPID: %d\n", getpid(), getppid());
 
-    for(int i = 0; i < count; i++) {
-        waitpid(child[i], NULL, 0);
-    }
+    while (wait(NULL) > 0);
 
-    if(getpid() == root) {
-        printf("Total number of processes created = 8 (2^3)\n");
-    }
+    if (getpid() == root)
+        printf("Total processes = %d (2^3)\n", count);
 
     return 0;
 }
