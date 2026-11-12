@@ -1,62 +1,112 @@
 #include <stdio.h>
 
+struct Process {
+    int pid;
+    int at;
+    int bt;
+    int rt;
+    int ct;
+    int tat;
+    int wt;
+};
+
 int main() {
-    int n, i, tq, time = 0;
-    int bt[20], rem_bt[20], wt[20], tat[20];
-    int total_wt = 0, total_tat = 0;
+    int n, tq;
 
     printf("Enter number of processes: ");
     scanf("%d", &n);
 
-    for(i = 0; i < n; i++) {
-        printf("Enter burst time of P%d: ", i + 1);
-        scanf("%d", &bt[i]);
-        rem_bt[i] = bt[i];
+    struct Process p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].pid = i + 1;
+
+        printf("\nProcess P%d\n", i + 1);
+
+        printf("Arrival Time: ");
+        scanf("%d", &p[i].at);
+
+        printf("Burst Time: ");
+        scanf("%d", &p[i].bt);
+
+        p[i].rt = p[i].bt;
     }
 
-    printf("Enter time quantum: ");
+    printf("\nEnter Time Quantum: ");
     scanf("%d", &tq);
 
-    while(1) {
-        int done = 1;
+    int completed = 0;
+    int time = 0;
+    int queue[n * 100];
+    int front = 0, rear = 0;
+    int visited[n];
 
-        for(i = 0; i < n; i++) {
-            if(rem_bt[i] > 0) {
-                done = 0;
+    for (int i = 0; i < n; i++)
+        visited[i] = 0;
 
-                if(rem_bt[i] > tq) {
-                    time += tq;
-                    rem_bt[i] -= tq;
-                }
-                else {
-                    time += rem_bt[i];
-                    wt[i] = time - bt[i];
-                    rem_bt[i] = 0;
-                }
+    while (completed < n) {
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].at <= time && p[i].rt > 0 && visited[i] == 0) {
+                queue[rear++] = i;
+                visited[i] = 1;
             }
         }
 
-        if(done == 1)
-            break;
+        if (front == rear) {
+            time++;
+            continue;
+        }
+
+        int index = queue[front++];
+
+        int execute;
+
+        if (p[index].rt < tq)
+            execute = p[index].rt;
+        else
+            execute = tq;
+
+        p[index].rt -= execute;
+        time += execute;
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].at <= time && p[i].rt > 0 && visited[i] == 0) {
+                queue[rear++] = i;
+                visited[i] = 1;
+            }
+        }
+
+        if (p[index].rt > 0) {
+            queue[rear++] = index;
+        } else {
+            p[index].ct = time;
+            p[index].tat = p[index].ct - p[index].at;
+            p[index].wt = p[index].tat - p[index].bt;
+            completed++;
+        }
     }
 
-    printf("\nProcess\tBT\tWT\tTAT\n");
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\n");
+    printf("---------------------------------------------\n");
 
-    for(i = 0; i < n; i++) {
-        tat[i] = bt[i] + wt[i];
+    float totalWT = 0, totalTAT = 0;
 
-        total_wt += wt[i];
-        total_tat += tat[i];
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[i].pid,
+               p[i].at,
+               p[i].bt,
+               p[i].ct,
+               p[i].tat,
+               p[i].wt);
 
-        printf("P%d\t%d\t%d\t%d\n",
-               i + 1, bt[i], wt[i], tat[i]);
+        totalWT += p[i].wt;
+        totalTAT += p[i].tat;
     }
 
-    printf("\nAverage Waiting Time = %.2f",
-           (float)total_wt / n);
-
-    printf("\nAverage Turnaround Time = %.2f\n",
-           (float)total_tat / n);
+    printf("\nAverage Waiting Time = %.2f", totalWT / n);
+    printf("\nAverage Turnaround Time = %.2f\n", totalTAT / n);
 
     return 0;
 }
